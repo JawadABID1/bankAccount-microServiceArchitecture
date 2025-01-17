@@ -2,9 +2,7 @@ package net.abid.customerservice.web;
 
 import net.abid.customerservice.entities.Customer;
 import net.abid.customerservice.repository.CustomerRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,4 +28,28 @@ public class CustomerRestController {
     public Customer getCustomerById(@PathVariable Long  id) {
         return customerRepository.findById(id).get();
     }
+
+    @PostMapping("/customers/create")
+    public Customer addCustomer(@RequestBody Customer newCustomer){
+        return customerRepository.save(newCustomer);
+    }
+
+    @PutMapping("/customers/{id}")
+    public Customer editCustomer(@PathVariable Long id, @RequestBody Customer updatedCustomer){
+        Customer existingCustomer = customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found with ID: " + id));
+
+        existingCustomer.setFirstName(updatedCustomer.getFirstName());
+        existingCustomer.setLastName(updatedCustomer.getLastName());
+        existingCustomer.setEmail(updatedCustomer.getEmail());
+        return customerRepository.save(existingCustomer);
+    }
+
+    @DeleteMapping("/customers/{id}")
+    public void deleteCustomer(@PathVariable Long id){
+        Customer customerToDelete = customerRepository.findById(id)
+                .orElseThrow(()-> new RuntimeException("Customer not found with ID: " + id));
+        customerRepository.delete(customerToDelete);
+    }
+
 }
